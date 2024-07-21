@@ -1,24 +1,41 @@
-const Income = require('../models/IncomeModel');
-const Expense = require('../models/ExpenseModel');
+const Transaction = require('../models/Transaction');
+const jwt = require('jsonwebtoken');
+
+// Middleware to get user from token
+const getUserFromToken = (req) => {
+  const token = req.headers['authorization']?.split(' ')[1];
+  if (!token) return null;
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    return decoded.userId;
+  } catch (err) {
+    return null;
+  }
+};
 
 const getTransactions = async (req, res) => {
-    try {
-        const { date, category, amount } = req.query;
-        let filter = {};
+  const userId = getUserFromToken(req);
 
-        if (date) filter.date = new Date(date);
-        if (category) filter.category = new RegExp(category, 'i');
-        if (amount) filter.amount = amount;
+  if (!userId) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
 
-        const incomes = await Income.find(filter);
-        const expenses = await Expense.find(filter);
+  try {
+    const { date, category, amount } = req.query;
+    let filter = { user_id: userId };
 
-        const transactions = [...incomes, ...expenses].sort((a, b) => new Date(a.date) - new Date(b.date));
+    if (date) filter.date = new Date(date);
+    if (category) filter.category = new RegExp(category, 'i');
+    if (amount) filter.amount = amount;
 
-        res.json(transactions);
-    } catch (error) {
-        res.status(500).json({ error: 'Error fetching transactions' });
-    }
+    // Fetch transactions based on the filter
+    const transactions = await Transaction.find(filter).sort({ date: 1 });
+
+    res.json(transactions);
+  } catch (error) {
+    console.error('Error fetching transactions:', error);
+    res.status(500).json({ error: 'Error fetching transactions' });
+  }
 };
 
 module.exports = { getTransactions };

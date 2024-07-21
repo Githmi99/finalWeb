@@ -9,8 +9,6 @@ const port = 3000;
 app.use(bodyParser.json());
 app.use(cors());
 
-app.use('/api/auth', authRoutes);
-
 app.listen(port, () => {
   console.log(`Server running on http://localhost:${port}`);
 });

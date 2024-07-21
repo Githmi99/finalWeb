@@ -23,4 +23,4 @@ const server = () => {
   });
 };
 
-server(); 
+server();

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import './Auth.css';
 
 const Register = () => {
@@ -8,52 +9,68 @@ const Register = () => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (password !== confirmPassword) {
       alert('Passwords do not match');
       return;
     }
-    // Handle registration logic here
-    console.log('Register:', { email, password });
-    navigate('/login');
+    try {
+      console.log(email, password);
+      const response = await axios.post(
+        'http://localhost:3000/api/v1/register',
+        {
+          email,
+          password,
+        }
+      );
+      console.log('Register Response:', response.data);
+      if (response.data.message === 'Registration successful.') {
+        navigate('/login');
+      }
+    } catch (error) {
+      console.error('Error during registration:', error);
+      alert('Registration failed. Please try again.');
+    }
   };
 
   return (
-    <div className="auth-container">
-      <div className="auth-box">
+    <div className='auth-container'>
+      <div className='auth-box'>
         <h2>Register</h2>
         <form onSubmit={handleSubmit}>
-          <div className="auth-input">
+          <div className='auth-input'>
             <input
-              type="email"
-              placeholder="Email"
+              type='email'
+              placeholder='Email'
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
             />
           </div>
-          <div className="auth-input">
+          <div className='auth-input'>
             <input
-              type="password"
-              placeholder="Password"
+              type='password'
+              placeholder='Password'
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
             />
           </div>
-          <div className="auth-input">
+          <div className='auth-input'>
             <input
-              type="password"
-              placeholder="Confirm Password"
+              type='password'
+              placeholder='Confirm Password'
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               required
             />
           </div>
-          <button className="auth-button" type="submit">Register</button>
+          <button className='auth-button' type='submit'>
+            Register
+          </button>
         </form>
-        <div className="auth-footer">
+        <div className='auth-footer'>
           <span>Already have an account? </span>
           <a onClick={() => navigate('/login')}>Login</a>
         </div>
