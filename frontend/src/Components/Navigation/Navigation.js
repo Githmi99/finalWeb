@@ -6,6 +6,7 @@ import { menuItems } from '../../utils/menuItems';
 import { useGlobalContext } from '../../context/globalContext';
 import { useNavigate } from 'react-router-dom';
 import axios from '../../config/AxiosConfig';
+import { emailjs } from '@emailjs/browser';
 
 function Navigation({ active, setActive }) {
   const navigate = useNavigate();
@@ -19,21 +20,27 @@ function Navigation({ active, setActive }) {
 
   const handleSendEmail = async () => {
     try {
-      await axios.post('send-summary', {
-        email: user.email,
-        summary: {
-          totalIncome: totalIncome(),
-          totalExpenses: totalExpenses(),
-          totalBalance: totalBalance(),
-        },
-      });
+      const templateParams = {
+        to_name: user.email,
+        from_name: 'Your Finance App', // Customize as needed
+        message: `Here is your summary:
+                  Total Income: ${totalIncome()}
+                  Total Expenses: ${totalExpenses()}
+                  Total Balance: ${totalBalance()}`,
+      };
+
+      await emailjs.send(
+        'service_4vclf3g', // Replace with your EmailJS service ID
+        'template_vt7ai68', // Replace with your EmailJS template ID
+        templateParams
+      );
+
       alert('Summary email sent!');
     } catch (error) {
       console.error('Error sending email:', error);
       alert('Failed to send summary email');
     }
   };
-
   return (
     <NavStyled>
       <div className='user-con'>
