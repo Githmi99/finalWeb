@@ -26,7 +26,7 @@ exports.addExpense = async (req, res) => {
     if (!title || !category || !description || !date) {
       return res.status(400).json({ message: 'All fields are required!' });
     }
-    if (amount <= 0 || typeof amount !== 'number') {
+    if (amount <= 0) {
       return res
         .status(400)
         .json({ message: 'Amount must be a positive number!' });
